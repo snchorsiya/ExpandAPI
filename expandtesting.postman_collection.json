@@ -1,0 +1,1313 @@
+{
+	"info": {
+		"_postman_id": "723ea9c3-0635-4605-b90c-d6d9e9835d8c",
+		"name": "expandtesting",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13852941",
+		"_collection_link": "https://galactic-astronaut-894425.postman.co/workspace/b6dafb4f-3507-4e58-a32d-dd31bf6ab148/collection/13852941-723ea9c3-0635-4605-b90c-d6d9e9835d8c?action=share&source=collection_link&creator=13852941"
+	},
+	"item": [
+		{
+			"name": "health_check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check the Status code 200\", function(){\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Check the success code in body\", function(){\r",
+							"    pm.expect(jsonData.success).to.eql(true);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check the Status code in body\", function(){\r",
+							"    pm.expect(jsonData.status).to.eql(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check the message in body\", function(){\r",
+							"    pm.expect(jsonData.message).to.eql(\"Notes API is Running\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{exp_url}}/health-check",
+					"host": [
+						"{{exp_url}}"
+					],
+					"path": [
+						"health-check"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "RegisterUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Check the success msg is true in body?\", function(){\r",
+							"    pm.expect(jsonData.success).to.eql(true);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check the body message\", function(){\r",
+							"    pm.expect(jsonData.message).to.eql(\"User account created successfully\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify the values are not null\", function(){\r",
+							"    pm.expect(jsonData.data.id, \"Id is not null\").to.not.be.null;\r",
+							"    pm.expect(jsonData.data.name, \"name is not null\").to.not.be.null;\r",
+							"    pm.expect(jsonData.data.email, \"email is not null\").to.not.be.null;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"response property matching an environment variable\", function(){\r",
+							"    pm.expect(jsonData.name).to.eql(pm.environment.get(\"name\"));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check the response time\", function(){\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"id\", jsonData.data.id);\r",
+							"pm.environment.set(\"name\", jsonData.data.name);\r",
+							"\r",
+							"let password = JSON.parse(pm.request.body.raw).password;\r",
+							"pm.environment.set('password', password);\r",
+							"\r",
+							"message = [\r",
+							"    \"Access token is not valid or has expired, you will need to login\",\r",
+							"    \"No authentication token specified in x-auth-token header\",\r",
+							"    \"User name must be between 4 and 30 characters\",\r",
+							"    \"Phone number should be between 8 and 20 digits\",\r",
+							"    \"Unauthorized Request\",\r",
+							"    \"Internal Error Server\",\r",
+							"    \"Profile updated successful\",\r",
+							"    \"User account created successfully\",\r",
+							"    \"Not Found\",\r",
+							"    \"Bad Request\",\r",
+							"    \"An account already exists with the same email address\"\r",
+							"];\r",
+							"\r",
+							"status = [400,401,404,409,500,200,201];\r",
+							"\r",
+							"if (jsonData.success === false) {\r",
+							"    pm.test(`**** E R R O R ***** ${jsonData.message}`, function(){\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the multiple error status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(`*** S U C C E S S *** ${jsonData.message}`, function(){\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the Status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"\r",
+							"// // Define the incrementEmail function\r",
+							"// function incrementEmail(email) {\r",
+							"//     const match = email.match(/\\+a(\\d+)/);\r",
+							"\r",
+							"//     if (match) {\r",
+							"//         const currentNumber = parseInt(match[1]);\r",
+							"//         const nextNumber = currentNumber + 1;\r",
+							"//         const incrementedEmail = email.replace(/\\+a\\d+/, `+a${nextNumber}`);\r",
+							"//         return incrementedEmail;\r",
+							"//     }\r",
+							"\r",
+							"//     return email;\r",
+							"// }\r",
+							"\r",
+							"\r",
+							"// const originalEmail = pm.environment.get(\"email\");\r",
+							"\r",
+							"\r",
+							"// if (originalEmail) {\r",
+							"//     // Use the incrementEmail function to get the incremented email\r",
+							"//     const incrementedEmail = incrementEmail(originalEmail);\r",
+							"\r",
+							"//     // Set the incremented email back to the environment\r",
+							"//     pm.environment.set(\"email\", incrementedEmail);\r",
+							"\r",
+							"//     console.log(\"OriginalEmail:\", originalEmail);\r",
+							"//     console.log(\"IncrementedEmail:\", incrementedEmail);\r",
+							"// } else {\r",
+							"//     console.error(\"Email environment variable not found.\");\r",
+							"// }\r",
+							"\r",
+							"// console.log(pm.environment.get(\"email\"));\r",
+							"\r",
+							"\r",
+							"// -------------------------------------------------------------------\r",
+							"// Define the base part of the email address\r",
+							"const baseEmail = pm.environment.get(\"baseEmail\");\r",
+							"\r",
+							"// Generate a random number between min and max (inclusive)\r",
+							"function getRandomNumber(min, max) {\r",
+							"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+							"}\r",
+							"\r",
+							"// Generate a random sequence like +a151, +a152, +a153, and so on\r",
+							"const randomSequence = `+a${getRandomNumber(1, 999)}`;\r",
+							"\r",
+							"// Combine the base and random sequence to create the random email address\r",
+							"const randomEmail = `${baseEmail}${randomSequence}@gmail.com`;\r",
+							"\r",
+							"// Set the random email address as an environment variable for your request\r",
+							"pm.environment.set('randomEmail', randomEmail);\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\":\"{{$randomFullName}}\",\r\n    \"email\":\"{{randomEmail}}\",\r\n    \"password\":\"{{$randomPassword}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{exp_url}}/users/register",
+					"host": [
+						"{{exp_url}}"
+					],
+					"path": [
+						"users",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UserLogin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check the status code is 200\", function(){\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Check the success message\", function(){\r",
+							"    pm.expect(jsonData.success).to.eql(true);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check the body message\", function(){\r",
+							"    pm.expect(jsonData.message).to.eql(\"Login successful\");\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"exp_token\", jsonData.data.token);\r",
+							"\r",
+							"pm.test(\"Verify the values are not null\", function(){\r",
+							"    pm.expect(jsonData.data.id, \"Id is not a null\").to.not.be.null;\r",
+							"    pm.expect(jsonData.data.name, \"name is not a null\").to.not.be.null;\r",
+							"    pm.expect(jsonData.data.email, \"email is not a null\").to.not.be.null;\r",
+							"    pm.expect(jsonData.data.token, \"token is not a null\").to.not.be.null;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check the response time\", function(){\r",
+							"    pm.expect(pm.response.responseTime).to.below(2000);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\":\"{{randomEmail}}\",\r\n    \"password\":\"{{password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{exp_url}}/users/login",
+					"host": [
+						"{{exp_url}}"
+					],
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetProfile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"let jsonData = pm.response.json();\r",
+							"message = [\r",
+							"    \"Access token is not valid or has expired, you will need to login\",\r",
+							"    \"No authentication token specified in x-auth-token header\",\r",
+							"    \"Bad Request\",\r",
+							"    \"Unauthorized Request\",\r",
+							"    \"Internal Error Server\",\r",
+							"    \"Profile successful\",\r",
+							"    \"Not Found\"\r",
+							"]\r",
+							"\r",
+							"status = [400,401,404,500,200,201]\r",
+							"\r",
+							"if (jsonData.success === false) {\r",
+							"    pm.test(`**** E R R O R ***** ${jsonData.message}`, function(){\r",
+							"        // pm.expect(jsonData.message).to.eql(\"No authentication token specified in x-auth-token header\");\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the multiple error status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"\r",
+							"\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(`*** S U C C E S S *** ${jsonData.message}`, function(){\r",
+							"        // pm.expect(jsonData.message).to.equal(\"Profile successful\");\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Check the response time\", function(){\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(6000);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the Status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Body matches multiple string\",function(){\r",
+							"    pm.expect(pm.response.text()).to.include(\"id\");\r",
+							"    pm.expect(pm.response.text()).to.include(\"name\");\r",
+							"    pm.expect(pm.response.text()).to.include(\"email\");\r",
+							"});\r",
+							"\r",
+							"}\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "{{exp_token}}",
+							"type": "string"
+						},
+						{
+							"key": "in",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "x-auth-token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{exp_url}}/users/profile",
+					"host": [
+						"{{exp_url}}"
+					],
+					"path": [
+						"users",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateProfile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();\r",
+							"message = [\r",
+							"    \"Access token is not valid or has expired, you will need to login\",\r",
+							"    \"No authentication token specified in x-auth-token header\",\r",
+							"    \"User name must be between 4 and 30 characters\",\r",
+							"    \"Phone number should be between 8 and 20 digits\",\r",
+							"    \"Unauthorized Request\",\r",
+							"    \"Internal Error Server\",\r",
+							"    \"Profile updated successful\",\r",
+							"    \"Not Found\",\r",
+							"    \"Bad Request\"\r",
+							"]\r",
+							"\r",
+							"status = [400,401,404,500,200,201]\r",
+							"// var jsonData1 = pm.response.json();\r",
+							"// pm.environment.set(\"phoneNumber\", jsonData1.data.phone);\r",
+							"\r",
+							"if (jsonData.success === false) {\r",
+							"    pm.test(`**** E R R O R ***** ${jsonData.message}`, function(){\r",
+							"        // pm.expect(jsonData.message).to.eql(\"No authentication token specified in x-auth-token header\");\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the multiple error status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"\r",
+							"\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(`*** S U C C E S S *** ${jsonData.message}`, function(){\r",
+							"        // pm.expect(jsonData.message).to.equal(\"Profile successful\");\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Check the response time\", function(){\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(6000);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the Status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Body matches multiple string\",function(){\r",
+							"    pm.expect(pm.response.text()).to.include(\"id\");\r",
+							"    pm.expect(pm.response.text()).to.include(\"name\");\r",
+							"    pm.expect(pm.response.text()).to.include(\"email\");\r",
+							"});\r",
+							"\r",
+							"}\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"random_number\",_.random(1000000000,9999999999));\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "{{exp_token}}",
+							"type": "string"
+						},
+						{
+							"key": "in",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "x-auth-token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\":\"{{name}}\",\r\n    \"phone\":\"{{random_number}}\",\r\n    \"company\":\"{{$randomCompanyName}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{exp_url}}/users/profile",
+					"host": [
+						"{{exp_url}}"
+					],
+					"path": [
+						"users",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ForgotPassword",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();\r",
+							"let jsonEmail = JSON.parse(pm.request.body.raw).email;\r",
+							"\r",
+							"message = [\r",
+							"    \"Access token is not valid or has expired, you will need to login\",\r",
+							"    \"No authentication token specified in x-auth-token header\",\r",
+							"    \"Unauthorized Request\",\r",
+							"    \"Internal Error Server\",\r",
+							"    `Password reset link successfully sent to ${pm.environment.get(\"email\")}. Please verify by clicking on the given link`,\r",
+							"    \"Not Found\",\r",
+							"    \"Bad Request\",\r",
+							"    \"A valid email address is required\"\r",
+							"]\r",
+							"\r",
+							"status = [400,401,404,500,200,201]\r",
+							"// var jsonData1 = pm.response.json();\r",
+							"// pm.environment.set(\"phoneNumber\", jsonData1.data.phone);\r",
+							"\r",
+							"if (jsonData.success === false) {\r",
+							"    pm.test(`**** E R R O R ***** ${jsonData.message}`, function(){\r",
+							"        // pm.expect(jsonData.message).to.eql(\"No authentication token specified in x-auth-token header\");\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the multiple error status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"\r",
+							"\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(`*** S U C C E S S *** ${jsonData.message}`, function(){\r",
+							"        // pm.expect(jsonData.message).to.equal(\"Profile successful\");\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Check the response time\", function(){\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(6000);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the Status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Body matches multiple string\",function(){\r",
+							"    pm.expect(pm.response.text()).to.include(\"message\");\r",
+							"});\r",
+							"\r",
+							"}\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "{{exp_token}}",
+							"type": "string"
+						},
+						{
+							"key": "in",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "x-auth-token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\":\"{{randomEmail}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{exp_url}}/users/forgot-password",
+					"host": [
+						"{{exp_url}}"
+					],
+					"path": [
+						"users",
+						"forgot-password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetEmailMessage",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.environment.set(\"messageId\", jsonData.messages[0].id);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var newRefreshToken = pm.environment.get(\"access_token\");\r",
+							"\r",
+							"pm.environment.set(\"refresh_token\", newRefreshToken);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "useBrowser",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "scope",
+							"value": "{{Scope}}",
+							"type": "string"
+						},
+						{
+							"key": "clientSecret",
+							"value": "{{Client_Secret}}",
+							"type": "string"
+						},
+						{
+							"key": "clientId",
+							"value": "{{Client_ID}}",
+							"type": "string"
+						},
+						{
+							"key": "accessTokenUrl",
+							"value": "{{Access_Token_URL}}",
+							"type": "string"
+						},
+						{
+							"key": "authUrl",
+							"value": "{{Auth_URL}}",
+							"type": "string"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "{{Callback_URL}}",
+							"type": "string"
+						},
+						{
+							"key": "grant_type",
+							"value": "authorization_code",
+							"type": "string"
+						},
+						{
+							"key": "tokenName",
+							"value": "email_token",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://gmail.googleapis.com/gmail/v1/users/{{user_email_id}}/messages/",
+					"protocol": "https",
+					"host": [
+						"gmail",
+						"googleapis",
+						"com"
+					],
+					"path": [
+						"gmail",
+						"v1",
+						"users",
+						"{{user_email_id}}",
+						"messages",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetMessageByID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.environment.set(\"message_Body\", response.payload.body.data);\r",
+							"\r",
+							"var atob = require('atob');\r",
+							"\r",
+							"\r",
+							"var base64Data = pm.environment.get(\"message_Body\");\r",
+							"var decodedData = atob(base64Data);\r",
+							"postman.setEnvironmentVariable(\"rest_password\",decodedData);\r",
+							"var tokenRegex = /Reset password link: (https:\\/\\/practice\\.expandtesting\\.com\\/notes\\/app\\/reset-password\\/([\\w\\d]+))[^ ]+/;\r",
+							"var tokenMatch = decodedData.match(tokenRegex);\r",
+							"if (tokenMatch && tokenMatch[2]) {\r",
+							"    var resetPasswordToken = tokenMatch[2];\r",
+							"    \r",
+							"    // Set the reset password link as a Postman environment variable for later use\r",
+							"    pm.environment.set(\"resetPasswordToken\", resetPasswordToken);\r",
+							"    \r",
+							"    // Log the reset password link\r",
+							"    console.log(\"Reset Password Token: \" + resetPasswordToken);\r",
+							"} else {\r",
+							"    console.log(\"Reset password token not found in the response.\");\r",
+							"}\r",
+							"console.log(decodedData);\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "multipart/mixed",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://gmail.googleapis.com/gmail/v1/users/{{user_email_id}}/messages/{{messageId}}",
+					"protocol": "https",
+					"host": [
+						"gmail",
+						"googleapis",
+						"com"
+					],
+					"path": [
+						"gmail",
+						"v1",
+						"users",
+						"{{user_email_id}}",
+						"messages",
+						"{{messageId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "verify-reset-password-token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();\r",
+							"\r",
+							"message = [\r",
+							"    \"The provided password reset token is valid\",\r",
+							"    \"Bad Request\",\r",
+							"    \"Internal Error Server\",\r",
+							"    \"The provided password reset token is invalid or has expired\"\r",
+							"]\r",
+							"\r",
+							"status = [200,400,401,500]\r",
+							"\r",
+							"if (jsonData.success === false) {\r",
+							"    pm.test(`**** E R R O R ***** ${jsonData.message}`, function(){\r",
+							"        // pm.expect(jsonData.message).to.eql(\"No authentication token specified in x-auth-token header\");\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the multiple error status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"\r",
+							"\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(`*** S U C C E S S *** ${jsonData.message}`, function(){\r",
+							"        // pm.expect(jsonData.message).to.equal(\"Profile successful\");\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Check the response time\", function(){\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(6000);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the Status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Body matches multiple string\",function(){\r",
+							"    pm.expect(pm.response.text()).to.include(\"message\");\r",
+							"});\r",
+							"\r",
+							"}\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "token",
+							"value": "{{resetPasswordToken}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{exp_url}}/users/verify-reset-password-token",
+					"host": [
+						"{{exp_url}}"
+					],
+					"path": [
+						"users",
+						"verify-reset-password-token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "reset-password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();\r",
+							"\r",
+							"let newPassword = JSON.parse(pm.request.body.raw).newPassword;\r",
+							"pm.environment.set('password', newPassword);\r",
+							"\r",
+							"\r",
+							"message = [\r",
+							"    \"The password has been successfully reset\",\r",
+							"    \"Token must be between 64 characters\",\r",
+							"    \"Bad Request\",\r",
+							"    \"The password was successfully updated\",\r",
+							"    \"Internal Error Server\",\r",
+							"    \"New password must be between 6 and 30 characters\",\r",
+							"    \"The password reset token is invalid or has expired\"\r",
+							"]\r",
+							"\r",
+							"status = [200,400,401,500]\r",
+							"\r",
+							"if (jsonData.success === false) {\r",
+							"    pm.test(`**** E R R O R ***** ${jsonData.message}`, function(){\r",
+							"        // pm.expect(jsonData.message).to.eql(\"No authentication token specified in x-auth-token header\");\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the multiple error status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"\r",
+							"\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(`*** S U C C E S S *** ${jsonData.message}`, function(){\r",
+							"        // pm.expect(jsonData.message).to.equal(\"Profile successful\");\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Check the response time\", function(){\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(6000);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the Status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Body matches multiple string\",function(){\r",
+							"    pm.expect(pm.response.text()).to.include(\"message\");\r",
+							"});\r",
+							"\r",
+							"}\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"token\":\"{{resetPasswordToken}}\",\r\n    \"newPassword\":\"{{$randomPassword}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://practice.expandtesting.com/notes/api/users/reset-password",
+					"protocol": "https",
+					"host": [
+						"practice",
+						"expandtesting",
+						"com"
+					],
+					"path": [
+						"notes",
+						"api",
+						"users",
+						"reset-password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "change-password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.get(\"password\");\r",
+							"\r",
+							"let newPassword = JSON.parse(pm.request.body.raw).newPassword;\r",
+							"pm.environment.set('password', newPassword);\r",
+							"\r",
+							"let jsonData = pm.response.json();\r",
+							"message = [\r",
+							"    \"The password has been successfully reset\",\r",
+							"    \"Token must be between 64 characters\",\r",
+							"    \"Bad Request\",\r",
+							"    \"The password was successfully updated\",\r",
+							"    \"Internal Error Server\",\r",
+							"    \"New password must be between 6 and 30 characters\",\r",
+							"    \"The password reset token is invalid or has expired\"\r",
+							"]\r",
+							"\r",
+							"status = [200,400,401,500]\r",
+							"\r",
+							"if (jsonData.success === false) {\r",
+							"    pm.test(`**** E R R O R ***** ${jsonData.message}`, function(){\r",
+							"        // pm.expect(jsonData.message).to.eql(\"No authentication token specified in x-auth-token header\");\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the multiple error status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"\r",
+							"\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(`*** S U C C E S S *** ${jsonData.message}`, function(){\r",
+							"        // pm.expect(jsonData.message).to.equal(\"Profile successful\");\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Check the response time\", function(){\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(6000);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the Status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Body matches multiple string\",function(){\r",
+							"    pm.expect(pm.response.text()).to.include(\"message\");\r",
+							"});\r",
+							"\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(pm.environment.get(\"password\"));\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "{{exp_token}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "x-auth-token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"currentPassword\":\"{{password}}\",\r\n    \"newPassword\":\"{{$randomPassword}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{exp_url}}/users/change-password",
+					"host": [
+						"{{exp_url}}"
+					],
+					"path": [
+						"users",
+						"change-password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UserLogout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();\r",
+							"message = [\r",
+							"    \"User has been successfully logged out\",\r",
+							"    \"Token must be between 64 characters\",\r",
+							"    \"Bad Request\",\r",
+							"    \"Access token is not valid or has expired, you will need to login\",\r",
+							"    \"No authentication token specified in x-auth-token header\",\r",
+							"    \"Internal Error Server\",\r",
+							"    \"Successful Request\",\r",
+							"    \"Unauthorized Request\"\r",
+							"]\r",
+							"\r",
+							"status = [200,400,401,500]\r",
+							"\r",
+							"if (jsonData.success === false) {\r",
+							"    pm.test(`**** E R R O R ***** ${jsonData.message}`, function(){\r",
+							"        // pm.expect(jsonData.message).to.eql(\"No authentication token specified in x-auth-token header\");\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the multiple error status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"\r",
+							"\r",
+							"}\r",
+							"else {\r",
+							"    pm.test(`*** S U C C E S S *** ${jsonData.message}`, function(){\r",
+							"        // pm.expect(jsonData.message).to.equal(\"Profile successful\");\r",
+							"        pm.expect(jsonData.message).to.be.oneOf(message);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Check the response time\", function(){\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(6000);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(`Check the Status code ${jsonData.status}`, function(){\r",
+							"        pm.expect(pm.response.code).to.be.oneOf(status);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Body matches multiple string\",function(){\r",
+							"    pm.expect(pm.response.text()).to.include(\"message\");\r",
+							"});\r",
+							"\r",
+							"}\r",
+							"\r",
+							"postman.setNextRequest(null);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "{{exp_token}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "x-auth-token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{exp_url}}/users/logout",
+					"host": [
+						"{{exp_url}}"
+					],
+					"path": [
+						"users",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "exp_url",
+			"value": "https://practice.expandtesting.com/notes/api",
+			"type": "string"
+		}
+	]
+}
